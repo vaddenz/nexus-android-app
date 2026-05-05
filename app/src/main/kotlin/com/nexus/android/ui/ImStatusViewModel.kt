@@ -1,11 +1,13 @@
 package com.nexus.android.ui
 
+import android.content.ComponentName
 import android.content.Context
 import android.provider.Settings
 import android.view.accessibility.AccessibilityManager
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.nexus.android.service.ImAccessibilityService
 import com.nexus.feature.memory.domain.model.EpisodicEvent
 import com.nexus.feature.memory.domain.usecase.QueryRecentMessagesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -53,14 +55,13 @@ class ImStatusViewModel @Inject constructor(
     }
 
     fun refreshAccessibilityStatus() {
-        val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
         val enabledServices = Settings.Secure.getString(
             context.contentResolver,
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
         ) ?: ""
-        val serviceName = "${context.packageName}/.service.ImAccessibilityService"
+        val componentName = ComponentName(context, ImAccessibilityService::class.java).flattenToString()
         _state.update {
-            it.copy(isAccessibilityEnabled = enabledServices.contains(serviceName))
+            it.copy(isAccessibilityEnabled = enabledServices.contains(componentName))
         }
     }
 }
