@@ -1,6 +1,7 @@
 package com.nexus.feature.im.di
 
 import com.nexus.feature.im.data.adapter.DingtalkAdapter
+import com.nexus.feature.im.data.adapter.FeishuAdapter
 import com.nexus.feature.im.data.adapter.SlackAdapter
 import com.nexus.feature.im.data.adapter.WechatAdapter
 import com.nexus.feature.im.data.adapter.WeworkAdapter
@@ -36,6 +37,10 @@ abstract class ImAccessibilityModule {
     @Binds
     @IntoSet
     abstract fun bindSlackAdapter(adapter: SlackAdapter): ImAdapter
+
+    @Binds
+    @IntoSet
+    abstract fun bindFeishuAdapter(adapter: FeishuAdapter): ImAdapter
 
     @Binds
     abstract fun bindDesensitizer(impl: RegexDesensitizer): Desensitizer
