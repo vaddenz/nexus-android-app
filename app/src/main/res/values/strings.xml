@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Nexus</string>
+    <string name="harness_overview">Harness Overview</string>
+    <string name="sensors_label">Sensors</string>
+    <string name="pipelines_label">Pipelines</string>
+    <string name="guides_label">Guides</string>
+</resources>
