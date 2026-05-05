@@ -43,7 +43,7 @@ class ImAccessibilityService : AccessibilityService() {
         if (isDuplicate(message)) return
 
         messageBridge.emit(message)
-        lastMessage = message.content
+        lastMessageKey = "${message.senderName}|${message.content}"
         lastMessageTime = System.currentTimeMillis()
     }
 
@@ -58,11 +58,12 @@ class ImAccessibilityService : AccessibilityService() {
 
     private fun isDuplicate(message: com.nexus.feature.im.domain.model.RawMessage): Boolean {
         val now = System.currentTimeMillis()
-        return message.content == lastMessage && (now - lastMessageTime) < 2000L
+        val key = "${message.senderName}|${message.content}"
+        return key == lastMessageKey && (now - lastMessageTime) < 2000L
     }
 
     companion object {
-        private var lastMessage: String? = null
+        private var lastMessageKey: String? = null
         private var lastMessageTime: Long = 0L
     }
 }
