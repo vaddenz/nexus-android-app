@@ -27,7 +27,7 @@ class WechatAdapter @Inject constructor() : ImAdapter {
     override fun parseMessage(root: NodeSnapshot): RawMessage? {
         // Collect all visible text nodes
         val textNodes = AccessibilityNodeParser.findAll(root) {
-            !it.text.isNullOrBlank() && it.isVisible
+            !it.text.isNullOrBlank() && it.isVisible && !it.className.isInputField()
         }
 
         if (textNodes.isEmpty()) return null
@@ -94,4 +94,9 @@ class WechatAdapter @Inject constructor() : ImAdapter {
             "更多", "发送", "语音输入", "按住说话", "朋友圈",
         )
     }
+}
+
+private fun String?.isInputField(): Boolean {
+    if (this == null) return false
+    return this.endsWith("EditText") || this.endsWith("AutoCompleteTextView")
 }

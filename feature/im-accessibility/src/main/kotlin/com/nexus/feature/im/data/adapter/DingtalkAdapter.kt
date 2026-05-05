@@ -20,7 +20,7 @@ class DingtalkAdapter @Inject constructor() : ImAdapter {
 
     override fun parseMessage(root: NodeSnapshot): RawMessage? {
         val textNodes = AccessibilityNodeParser.findAll(root) {
-            !it.text.isNullOrBlank() && it.isVisible
+            !it.text.isNullOrBlank() && it.isVisible && !it.className.isInputField()
         }
 
         if (textNodes.size < 2) return null
@@ -81,4 +81,9 @@ class DingtalkAdapter @Inject constructor() : ImAdapter {
             "返回", "发送", "更多", "+", "搜索",
         )
     }
+}
+
+private fun String?.isInputField(): Boolean {
+    if (this == null) return false
+    return this.endsWith("EditText") || this.endsWith("AutoCompleteTextView")
 }

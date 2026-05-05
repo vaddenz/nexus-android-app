@@ -30,7 +30,7 @@ class FeishuAdapter @Inject constructor() : ImAdapter {
 
     override fun parseMessage(root: NodeSnapshot): RawMessage? {
         val textNodes = AccessibilityNodeParser.findAll(root) {
-            !it.text.isNullOrBlank() && it.isVisible
+            !it.text.isNullOrBlank() && it.isVisible && !it.className.isInputField()
         }
 
         if (textNodes.isEmpty()) return null
@@ -170,4 +170,10 @@ class FeishuAdapter @Inject constructor() : ImAdapter {
         private val PURE_TIME_REGEX =
             "^\\d{1,2}:\\d{2}\$".toRegex()
     }
+}
+
+/** Returns true if the class name indicates an editable input field. */
+private fun String?.isInputField(): Boolean {
+    if (this == null) return false
+    return this.endsWith("EditText") || this.endsWith("AutoCompleteTextView")
 }

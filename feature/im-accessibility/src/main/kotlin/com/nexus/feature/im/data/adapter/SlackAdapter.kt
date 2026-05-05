@@ -19,7 +19,7 @@ class SlackAdapter @Inject constructor() : ImAdapter {
 
     override fun parseMessage(root: NodeSnapshot): RawMessage? {
         val textNodes = AccessibilityNodeParser.findAll(root) {
-            !it.text.isNullOrBlank() && it.isVisible
+            !it.text.isNullOrBlank() && it.isVisible && !it.className.isInputField()
         }
 
         if (textNodes.size < 2) return null
@@ -81,4 +81,9 @@ class SlackAdapter @Inject constructor() : ImAdapter {
             "jump to...", "threads", "drafts", "later",
         )
     }
+}
+
+private fun String?.isInputField(): Boolean {
+    if (this == null) return false
+    return this.endsWith("EditText") || this.endsWith("AutoCompleteTextView")
 }

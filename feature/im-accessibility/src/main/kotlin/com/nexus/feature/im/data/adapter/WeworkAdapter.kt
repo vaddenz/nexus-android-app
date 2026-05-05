@@ -19,7 +19,7 @@ class WeworkAdapter @Inject constructor() : ImAdapter {
 
     override fun parseMessage(root: NodeSnapshot): RawMessage? {
         val textNodes = AccessibilityNodeParser.findAll(root) {
-            !it.text.isNullOrBlank() && it.isVisible
+            !it.text.isNullOrBlank() && it.isVisible && !it.className.isInputField()
         }
 
         if (textNodes.isEmpty()) return null
@@ -81,4 +81,9 @@ class WeworkAdapter @Inject constructor() : ImAdapter {
             "更多", "发送", "按住说话", "日程", "会议", "微盘",
         )
     }
+}
+
+private fun String?.isInputField(): Boolean {
+    if (this == null) return false
+    return this.endsWith("EditText") || this.endsWith("AutoCompleteTextView")
 }
