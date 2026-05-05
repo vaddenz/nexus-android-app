@@ -23,4 +23,7 @@ interface EpisodicEventDao {
 
     @Query("SELECT COUNT(*) FROM episodic_events")
     suspend fun count(): Int
+
+    @Query("SELECT COUNT(*) FROM episodic_events WHERE collectedAt >= :startMs AND collectedAt < :endMs")
+    fun observeCountInRange(startMs: Long, endMs: Long): Flow<Int>
 }

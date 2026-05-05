@@ -2,6 +2,7 @@ package com.nexus.android.ui
 
 import android.content.Intent
 import android.provider.Settings
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -25,7 +26,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,6 +43,9 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nexus.android.R
 import com.nexus.feature.memory.domain.model.EpisodicEvent
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,6 +55,13 @@ fun ImStatusScreen(viewModel: ImStatusViewModel = hiltViewModel()) {
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         viewModel.refreshAccessibilityStatus()
+    }
+
+    state.selectedMessage?.let { event ->
+        MessageDetailDialog(
+            event = event,
+            onDismiss = { viewModel.selectMessage(null) },
+        )
     }
 
     Scaffold(
@@ -94,7 +107,10 @@ fun ImStatusScreen(viewModel: ImStatusViewModel = hiltViewModel()) {
                 }
             } else {
                 items(state.recentMessages, key = { it.id }) { event ->
-                    MessageCard(event)
+                    MessageCard(
+                        event = event,
+                        onClick = { viewModel.selectMessage(event) },
+                    )
                 }
             }
         }
@@ -153,9 +169,11 @@ private fun TodayCountCard(count: Int) {
 }
 
 @Composable
-private fun MessageCard(event: EpisodicEvent) {
+private fun MessageCard(event: EpisodicEvent, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(1.dp),
     ) {
         Column(Modifier.padding(12.dp)) {
@@ -177,6 +195,7 @@ private fun MessageCard(event: EpisodicEvent) {
             Text(
                 event.contentText,
                 style = MaterialTheme.typography.bodyMedium,
+                maxLines = 2,
             )
             if (event.isDesensitized) {
                 Spacer(Modifier.height(2.dp))
@@ -187,5 +206,52 @@ private fun MessageCard(event: EpisodicEvent) {
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun MessageDetailDialog(event: EpisodicEvent, onDismiss: () -> Unit) {
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        .withZone(ZoneId.systemDefault())
+    val timeText = formatter.format(Instant.ofEpochMilli(event.collectedAt))
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("消息详情") },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                DetailRow("发送者", event.senderName)
+                DetailRow("来源应用", event.sourcePackage)
+                DetailRow("采集时间", timeText)
+                DetailRow("置信度", "${(event.confidence * 100).toInt()}%")
+                DetailRow("脱敏状态", if (event.isDesensitized) "已脱敏" else "未脱敏")
+                Spacer(Modifier.height(4.dp))
+                Text("内容", style = MaterialTheme.typography.labelMedium)
+                Text(
+                    event.contentText,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text("关闭")
+            }
+        },
+    )
+}
+
+@Composable
+private fun DetailRow(label: String, value: String) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            "$label：",
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            value,
+            style = MaterialTheme.typography.bodyMedium,
+        )
     }
 }

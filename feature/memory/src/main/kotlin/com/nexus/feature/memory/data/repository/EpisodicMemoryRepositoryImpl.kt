@@ -29,6 +29,9 @@ class EpisodicMemoryRepositoryImpl @Inject constructor(
     override suspend fun cleanup(cutoffMs: Long): Int =
         dao.deleteOlderThan(cutoffMs)
 
+    override fun observeCountInRange(startMs: Long, endMs: Long): Flow<Int> =
+        dao.observeCountInRange(startMs, endMs)
+
     private fun EpisodicEvent.toEntity() = EpisodicEventEntity(
         id = id,
         eventType = eventType,

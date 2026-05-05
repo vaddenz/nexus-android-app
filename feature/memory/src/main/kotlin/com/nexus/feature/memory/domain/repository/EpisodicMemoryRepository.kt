@@ -19,4 +19,7 @@ interface EpisodicMemoryRepository {
 
     /** Delete events older than [cutoffMs]. */
     suspend fun cleanup(cutoffMs: Long): Int
+
+    /** Observe count of events whose collection time falls in [startMs, endMs). */
+    fun observeCountInRange(startMs: Long, endMs: Long): Flow<Int>
 }

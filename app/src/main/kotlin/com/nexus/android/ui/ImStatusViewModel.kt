@@ -3,13 +3,13 @@ package com.nexus.android.ui
 import android.content.ComponentName
 import android.content.Context
 import android.provider.Settings
-import android.view.accessibility.AccessibilityManager
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nexus.android.service.ImAccessibilityService
 import com.nexus.feature.memory.domain.model.EpisodicEvent
 import com.nexus.feature.memory.domain.usecase.QueryRecentMessagesUseCase
+import com.nexus.feature.memory.domain.usecase.QueryTodayMessageCountUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,12 +25,14 @@ data class ImStatusUiState(
     val isAccessibilityEnabled: Boolean = false,
     val todayCount: Int = 0,
     val recentMessages: List<EpisodicEvent> = emptyList(),
+    val selectedMessage: EpisodicEvent? = null,
 )
 
 @HiltViewModel
 class ImStatusViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     queryRecent: QueryRecentMessagesUseCase,
+    queryTodayCount: QueryTodayMessageCountUseCase,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(ImStatusUiState())
@@ -39,17 +41,15 @@ class ImStatusViewModel @Inject constructor(
     init {
         refreshAccessibilityStatus()
 
-        queryRecent(limit = 10)
+        queryRecent(limit = 50)
             .onEach { events ->
-                val now = System.currentTimeMillis()
-                val startOfDay = now - (now % 86_400_000L)
-                val todayCount = events.count { it.collectedAt >= startOfDay }
-                _state.update {
-                    it.copy(
-                        todayCount = todayCount,
-                        recentMessages = events,
-                    )
-                }
+                _state.update { it.copy(recentMessages = events) }
+            }
+            .launchIn(viewModelScope)
+
+        queryTodayCount()
+            .onEach { count ->
+                _state.update { it.copy(todayCount = count) }
             }
             .launchIn(viewModelScope)
     }
@@ -63,5 +63,9 @@ class ImStatusViewModel @Inject constructor(
         _state.update {
             it.copy(isAccessibilityEnabled = enabledServices.contains(componentName))
         }
+    }
+
+    fun selectMessage(event: EpisodicEvent?) {
+        _state.update { it.copy(selectedMessage = event) }
     }
 }
