@@ -26,10 +26,14 @@ import com.nexus.android.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HarnessScreen(viewModel: HarnessViewModel = hiltViewModel()) {
+fun HarnessScreen(
+    modifier: Modifier = Modifier,
+    viewModel: HarnessViewModel = hiltViewModel(),
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(title = { Text(stringResource(R.string.harness_overview)) })
         },

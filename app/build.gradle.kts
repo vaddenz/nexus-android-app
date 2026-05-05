@@ -64,6 +64,8 @@ dependencies {
     implementation(project(":harness:guide"))
     implementation(project(":harness:sensor"))
     implementation(project(":harness:pipeline"))
+    implementation(project(":feature:im-accessibility"))
+    implementation(project(":feature:memory"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime)

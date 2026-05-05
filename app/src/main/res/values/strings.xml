@@ -4,4 +4,12 @@
     <string name="sensors_label">Sensors</string>
     <string name="pipelines_label">Pipelines</string>
     <string name="guides_label">Guides</string>
+    <string name="accessibility_service_description">监听 IM 应用界面变化，自动采集项目相关对话内容。所有数据仅在本地处理。</string>
+    <string name="accessibility_status_enabled">无障碍服务已启用</string>
+    <string name="accessibility_status_disabled">无障碍服务未启用</string>
+    <string name="today_collected">今日采集</string>
+    <string name="messages_count">%d 条消息</string>
+    <string name="recent_messages">最近采集</string>
+    <string name="desensitization_rules">脱敏规则</string>
+    <string name="open_settings">前往设置</string>
 </resources>
